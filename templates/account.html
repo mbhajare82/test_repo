@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}My Account — {{ brand_name }}{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>My Account</h1>
+        <p>Welcome, {{ current_user.username }}</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <h2>Order History</h2>
+        {% if orders %}
+        <div class="orders-list">
+            {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <strong>Order #AH-{{ "%04d"|format(order.id) }}</strong>
+                    <span class="order-date">{{ order.created_at[:10] }}</span>
+                    <span class="order-status status-{{ order.status }}">{{ order.status|capitalize }}</span>
+                </div>
+                <div class="order-body">
+                    <p><strong>Total:</strong> ₹{{ "%.0f"|format(order.total) }}</p>
+                    <p><strong>Ship to:</strong> {{ order.shipping_address }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">No orders yet. <a href="{{ url_for('shop') }}">Start shopping!</a></p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

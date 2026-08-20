@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Shop — {{ brand_name }}{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>{% if active_category == 'sweets' %}Traditional Sweets{% elif active_category == 'namkins' %}Crispy Namkins{% else %}All Products{% endif %}</h1>
+        <p>Handcrafted with love, priced in Indian Rupees (₹)</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="shop-filters">
+            <a href="{{ url_for('shop') }}" class="filter-btn {% if not active_category %}active{% endif %}">All</a>
+            <a href="{{ url_for('shop', category='sweets') }}" class="filter-btn {% if active_category == 'sweets' %}active{% endif %}">🍬 Sweets</a>
+            <a href="{{ url_for('shop', category='namkins') }}" class="filter-btn {% if active_category == 'namkins' %}active{% endif %}">🥨 Namkins</a>
+        </div>
+
+        <div class="product-grid">
+            {% for product in products %}
+            <div class="product-card" data-tilt>
+                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-image-link">
+                    <div class="product-image-wrap">
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+                        <span class="product-category-badge">{{ product.category }}</span>
+                        {% if product.stock <= 5 and product.stock > 0 %}
+                        <span class="stock-badge low">Only {{ product.stock }} left</span>
+                        {% elif product.stock <= 0 %}
+                        <span class="stock-badge out">Out of Stock</span>
+                        {% endif %}
+                    </div>
+                </a>
+                <div class="product-info">
+                    <h3><a href="{{ url_for('product_detail', product_id=product.id) }}">{{ product.name }}</a></h3>
+                    <p class="product-desc-short">{{ product.description[:80] }}...</p>
+                    <div class="product-rating">
+                        {% for i in range(5) %}
+                        <span class="star {% if i < product.avg_rating|int %}filled{% elif i < product.avg_rating %}half{% endif %}">★</span>
+                        {% endfor %}
+                        <span class="rating-text">{{ product.avg_rating }} ({{ product.review_count }})</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price">₹{{ "%.0f"|format(product.price) }}</span>
+                        <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-sm btn-primary" {% if product.stock <= 0 %}disabled{% endif %}>
+                                {% if product.stock <= 0 %}Out of Stock{% else %}Add to Cart{% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <p class="empty-state">No products found in this category.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
