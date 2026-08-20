@@ -111,6 +111,21 @@ def init_db():
     )
     db.commit()
     seed_database(db)
+    update_product_images(db)
+
+
+PRODUCT_IMAGE_UPDATES = {
+    "Poha Chivda": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Bowl_of_Chivda.jpg",
+    "Chakali": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Chakali.JPG",
+    "Bhujia": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Crispy_Sev.jpg",
+}
+
+
+def update_product_images(db):
+    """Keep product photos accurate when image URLs are corrected."""
+    for name, url in PRODUCT_IMAGE_UPDATES.items():
+        db.execute("UPDATE products SET image_url = ? WHERE name = ?", (url, name))
+    db.commit()
 
 
 def seed_database(db):
@@ -210,7 +225,7 @@ def seed_database(db):
             "price": 180,
             "stock": 60,
             "category": "namkins",
-            "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/00/Poha_Chivda_-_Homemade_-_Maharashtra_-_The_healthy,_tasty_snack.jpg",
+            "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Bowl_of_Chivda.jpg",
         },
         {
             "name": "Chakali",
@@ -218,7 +233,7 @@ def seed_database(db):
             "price": 220,
             "stock": 55,
             "category": "namkins",
-            "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/73/Chakli.jpg",
+            "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Chakali.JPG",
         },
         {
             "name": "Murukku",
@@ -234,7 +249,7 @@ def seed_database(db):
             "price": 160,
             "stock": 70,
             "category": "namkins",
-            "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Bhujia.jpg",
+            "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Crispy_Sev.jpg",
         },
         {
             "name": "Shankarpali",
