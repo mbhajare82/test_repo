@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Order Confirmed — {{ brand_name }}{% endblock %}
+
+{% block content %}
+<section class="section success-section">
+    <div class="container text-center">
+        <div class="success-icon">✅</div>
+        <h1>Order Placed Successfully!</h1>
+        <p class="success-msg">Thank you, <strong>{{ name }}</strong>! Your order has been confirmed.</p>
+        <div class="order-details-card">
+            <p><strong>Order ID:</strong> #AH-{{ "%04d"|format(order_id) }}</p>
+            <p><strong>Total Amount:</strong> ₹{{ "%.0f"|format(total) }}</p>
+            <p><strong>Status:</strong> Confirmed</p>
+        </div>
+        <p class="success-note">We'll prepare your homemade treats with love and deliver them fresh to your doorstep.</p>
+        <div class="success-actions">
+            <a href="{{ url_for('shop') }}" class="btn btn-primary">Continue Shopping</a>
+            <a href="{{ url_for('index') }}" class="btn btn-outline">Back to Home</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

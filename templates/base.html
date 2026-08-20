@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ brand_name }} — {{ brand_tagline }}{% endblock %}</title>
+    <meta name="description" content="Authentic homemade Maharashtrian sweets and namkins — made with love, from mother's hands.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="{{ url_for('index') }}" class="logo">
+                <span class="logo-marathi">{{ brand_name }}</span>
+                <span class="logo-tagline">{{ brand_tagline }}</span>
+            </a>
+            <button class="nav-toggle" aria-label="Toggle navigation" id="navToggle">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
+                <li><a href="{{ url_for('shop') }}" class="{% if request.endpoint == 'shop' %}active{% endif %}">Shop</a></li>
+                <li><a href="{{ url_for('shop', category='sweets') }}">Sweets</a></li>
+                <li><a href="{{ url_for('shop', category='namkins') }}">Namkins</a></li>
+                <li>
+                    <a href="{{ url_for('cart') }}" class="cart-link">
+                        Cart
+                        {% if cart_count > 0 %}
+                        <span class="cart-badge">{{ cart_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_admin %}
+                    <li><a href="{{ url_for('admin_dashboard') }}" class="admin-link">Admin</a></li>
+                    {% endif %}
+                    <li><a href="{{ url_for('account') }}">{{ current_user.username }}</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('register') }}" class="btn btn-sm btn-primary">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-container container">
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <h3>{{ brand_name }}</h3>
+                <p>{{ brand_tagline }}</p>
+                <p class="footer-desc">Authentic homemade Maharashtrian sweets and namkins, crafted with generations of love and tradition.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{{ url_for('shop', category='sweets') }}">Sweets</a></li>
+                    <li><a href="{{ url_for('shop', category='namkins') }}">Namkins</a></li>
+                    <li><a href="{{ url_for('cart') }}">Cart</a></li>
+                    <li><a href="{{ url_for('checkout') }}">Checkout</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Account</h4>
+                <ul>
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('register') }}">Register</a></li>
+                    <li><a href="{{ url_for('admin_login') }}">Admin Login</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Contact</h4>
+                <p>📍 Pune, Maharashtra</p>
+                <p>📞 +91 98765 43210</p>
+                <p>✉️ hello@aichyahaatche.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom container">
+            <p>&copy; 2026 {{ brand_name }} (Aichya Haatche). All rights reserved. Made with ❤️ in Maharashtra.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

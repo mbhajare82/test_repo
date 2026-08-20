@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Home — {{ brand_name }}{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+        <div class="hero-text">
+            <p class="hero-subtitle">आईच्या हातचे • Homemade with Love</p>
+            <h1>Traditional Sweets &amp; Namkins<br><span>From Mother's Hands</span></h1>
+            <p class="hero-desc">Experience the authentic taste of Maharashtra — handcrafted laddoos, karanji, chivda, and chakali made fresh daily with pure ghee and generations of love.</p>
+            <div class="hero-actions">
+                <a href="{{ url_for('shop', category='sweets') }}" class="btn btn-primary btn-lg">Explore Sweets</a>
+                <a href="{{ url_for('shop', category='namkins') }}" class="btn btn-outline btn-lg">Shop Namkins</a>
+            </div>
+        </div>
+        <div class="hero-stats">
+            <div class="stat-card">
+                <span class="stat-number">{{ sweets_count }}+</span>
+                <span class="stat-label">Sweet Varieties</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">{{ namkins_count }}+</span>
+                <span class="stat-label">Namkin Varieties</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">100%</span>
+                <span class="stat-label">Homemade</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="categories section">
+    <div class="container">
+        <h2 class="section-title">Our Collections</h2>
+        <p class="section-subtitle">Two cherished categories, each carrying the warmth of home</p>
+        <div class="category-grid">
+            <a href="{{ url_for('shop', category='sweets') }}" class="category-card category-sweets">
+                <div class="category-card-inner">
+                    <div class="category-icon">🍬</div>
+                    <h3>Sweets</h3>
+                    <p>Boondi laddo, motichoor, besan laddo, karanji, barfi, chikhalwali &amp; more</p>
+                    <span class="category-link">Browse Sweets →</span>
+                </div>
+            </a>
+            <a href="{{ url_for('shop', category='namkins') }}" class="category-card category-namkins">
+                <div class="category-card-inner">
+                    <div class="category-icon">🥨</div>
+                    <h3>Namkins</h3>
+                    <p>Chiwda, chakali, murukku, bhujia, shankarpali &amp; festive mixes</p>
+                    <span class="category-link">Browse Namkins →</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="featured section section-alt">
+    <div class="container">
+        <h2 class="section-title">Featured Delights</h2>
+        <p class="section-subtitle">Customer favourites, freshly made every day</p>
+        <div class="product-grid">
+            {% for product in featured %}
+            <div class="product-card" data-tilt>
+                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="product-image-link">
+                    <div class="product-image-wrap">
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+                        <span class="product-category-badge">{{ product.category }}</span>
+                    </div>
+                </a>
+                <div class="product-info">
+                    <h3><a href="{{ url_for('product_detail', product_id=product.id) }}">{{ product.name }}</a></h3>
+                    <div class="product-rating">
+                        {% for i in range(5) %}
+                        <span class="star {% if i < product.avg_rating|int %}filled{% elif i < product.avg_rating %}half{% endif %}">★</span>
+                        {% endfor %}
+                        <span class="rating-text">({{ product.review_count }})</span>
+                    </div>
+                    <div class="product-footer">
+                        <span class="product-price">₹{{ "%.0f"|format(product.price) }}</span>
+                        <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-sm btn-primary" {% if product.stock <= 0 %}disabled{% endif %}>
+                                {% if product.stock <= 0 %}Out of Stock{% else %}Add to Cart{% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-lg">
+            <a href="{{ url_for('shop') }}" class="btn btn-outline">View All Products</a>
+        </div>
+    </div>
+</section>
+
+<section class="about section">
+    <div class="container about-grid">
+        <div class="about-content">
+            <h2 class="section-title">Why {{ brand_name }}?</h2>
+            <p>Every laddoo is rolled by hand. Every chakali is shaped with care. We use only pure desi ghee, fresh ingredients, and recipes passed down through generations of Maharashtrian mothers.</p>
+            <ul class="about-features">
+                <li>✨ 100% homemade — no preservatives</li>
+                <li>🌿 Pure desi ghee &amp; natural ingredients</li>
+                <li>📦 Freshly packed &amp; delivered across India</li>
+                <li>⭐ Loved by thousands of happy customers</li>
+            </ul>
+        </div>
+        <div class="about-visual">
+            <div class="about-card-3d">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c8/Diwali_Sweets_and_Snacks.png" alt="Diwali sweets assortment">
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/three-hero.js') }}"></script>
+{% endblock %}

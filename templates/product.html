@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — {{ brand_name }}{% endblock %}
+
+{% block content %}
+<section class="section product-detail-section">
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{{ url_for('index') }}">Home</a> /
+            <a href="{{ url_for('shop', category=product.category) }}">{{ product.category|capitalize }}</a> /
+            <span>{{ product.name }}</span>
+        </nav>
+
+        <div class="product-detail-grid">
+            <div class="product-detail-image" data-tilt>
+                <div class="product-3d-frame">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                </div>
+            </div>
+            <div class="product-detail-info">
+                <span class="product-category-badge inline">{{ product.category }}</span>
+                <h1>{{ product.name }}</h1>
+                <div class="product-rating large">
+                    {% for i in range(5) %}
+                    <span class="star {% if i < product.avg_rating|int %}filled{% elif i < product.avg_rating %}half{% endif %}">★</span>
+                    {% endfor %}
+                    <span class="rating-text">{{ product.avg_rating }} out of 5 ({{ product.review_count }} reviews)</span>
+                </div>
+                <p class="product-price large">₹{{ "%.0f"|format(product.price) }} <span class="price-unit">/ 250g pack</span></p>
+                <p class="product-description">{{ product.description }}</p>
+                <p class="stock-info">
+                    {% if product.stock > 10 %}
+                    <span class="in-stock">✓ In Stock ({{ product.stock }} available)</span>
+                    {% elif product.stock > 0 %}
+                    <span class="low-stock">⚠ Only {{ product.stock }} left!</span>
+                    {% else %}
+                    <span class="out-stock">✗ Out of Stock</span>
+                    {% endif %}
+                </p>
+                <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST" class="add-to-cart-form">
+                    <div class="qty-selector">
+                        <label for="quantity">Quantity:</label>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}" {% if product.stock <= 0 %}disabled{% endif %}>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg" {% if product.stock <= 0 %}disabled{% endif %}>
+                        {% if product.stock <= 0 %}Out of Stock{% else %}Add to Cart — ₹{{ "%.0f"|format(product.price) }}{% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="reviews-section">
+            <h2>Customer Reviews ({{ reviews|length }})</h2>
+
+            {% if current_user.is_authenticated and not current_user.is_admin %}
+            <form action="{{ url_for('add_review', product_id=product.id) }}" method="POST" class="review-form">
+                <h3>Write a Review</h3>
+                <div class="form-group">
+                    <label for="rating">Your Rating</label>
+                    <select id="rating" name="rating" required>
+                        <option value="5">★★★★★ — Excellent</option>
+                        <option value="4">★★★★☆ — Very Good</option>
+                        <option value="3">★★★☆☆ — Good</option>
+                        <option value="2">★★☆☆☆ — Fair</option>
+                        <option value="1">★☆☆☆☆ — Poor</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="comment">Your Review</label>
+                    <textarea id="comment" name="comment" rows="3" required placeholder="Share your experience with this product..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+            {% elif not current_user.is_authenticated %}
+            <p class="review-login-prompt"><a href="{{ url_for('login', next=request.path) }}">Log in</a> to write a review.</p>
+            {% endif %}
+
+            <div class="reviews-list">
+                {% for review in reviews %}
+                <div class="review-card">
+                    <div class="review-header">
+                        <strong>{{ review.username }}</strong>
+                        <div class="review-stars">
+                            {% for i in range(5) %}
+                            <span class="star {% if i < review.rating %}filled{% endif %}">★</span>
+                            {% endfor %}
+                        </div>
+                        <span class="review-date">{{ review.created_at[:10] }}</span>
+                    </div>
+                    <p>{{ review.comment }}</p>
+                </div>
+                {% else %}
+                <p class="empty-state">No reviews yet. Be the first to review!</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

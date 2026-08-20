@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Checkout — {{ brand_name }}{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Checkout</h1>
+        <p>Complete your order — all prices in ₹ (Indian Rupees)</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container checkout-grid">
+        <div class="checkout-form-wrap">
+            <h2>Shipping Details</h2>
+            <form action="{{ url_for('checkout') }}" method="POST" class="checkout-form">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" required
+                           value="{{ current_user.username if current_user.is_authenticated else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required
+                           value="{{ current_user.email if current_user.is_authenticated else '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" name="phone" required placeholder="+91 98765 43210">
+                </div>
+                <div class="form-group">
+                    <label for="address">Delivery Address *</label>
+                    <textarea id="address" name="address" rows="3" required placeholder="House no., Street, City, State, PIN"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg btn-block">Place Order — ₹{{ "%.0f"|format(total) }}</button>
+            </form>
+        </div>
+
+        <div class="checkout-summary">
+            <h2>Order Summary</h2>
+            {% for item in items %}
+            <div class="checkout-item">
+                <img src="{{ item.image_url }}" alt="{{ item.name }}">
+                <div>
+                    <strong>{{ item.name }}</strong>
+                    <span>Qty: {{ item.qty }} × ₹{{ "%.0f"|format(item.price) }}</span>
+                </div>
+                <span class="item-total">₹{{ "%.0f"|format(item.price * item.qty) }}</span>
+            </div>
+            {% endfor %}
+            <div class="summary-divider"></div>
+            <div class="summary-row total-row">
+                <span>Total</span>
+                <span>₹{{ "%.0f"|format(total) }}</span>
+            </div>
+            <p class="checkout-note">🚚 Free delivery across Maharashtra. Cash on Delivery available.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
