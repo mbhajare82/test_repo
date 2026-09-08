@@ -231,9 +231,18 @@ def run_stage(
         process=Process.sequential,
         verbose=verbose,
         memory=False,
+        tracing=False,
     )
     with contextlib.redirect_stdout(buf):
-        crew.kickoff(inputs=inputs)
+        try:
+            crew.kickoff(inputs=inputs)
+        except Exception as exc:
+            text = str(exc)
+            if "insufficient_quota" in text or "credit_balance_exhausted" in text:
+                raise RuntimeError(
+                    "OpenAI API has no remaining credits. Add billing or set a billed OPENAI_API_KEY in .env."
+                ) from exc
+            raise
     logs = buf.getvalue()
     return task_text(task), logs
 
