@@ -26,9 +26,7 @@ import sys
 
 from dotenv import load_dotenv
 
-load_dotenv()
-
-REQUIRED_KEYS = ("OPENAI_API_KEY",)
+load_dotenv(override=True)
 
 STAGES = (
     ("research", "Research", "Trend Researcher"),
@@ -39,14 +37,31 @@ STAGES = (
 )
 
 
+def _api_key() -> str:
+    """Prefer Gemini keys; also accept a Gemini AQ./AIza value stored as OPENAI_API_KEY."""
+    load_dotenv(override=True)
+    for name in ("GEMINI_API_KEY", "GOOGLE_API_KEY", "OPENAI_API_KEY"):
+        value = (os.getenv(name) or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _uses_gemini(key: str) -> bool:
+    return bool(
+        os.getenv("GEMINI_API_KEY")
+        or os.getenv("GOOGLE_API_KEY")
+        or key.startswith("AQ.")
+        or key.startswith("AIza")
+    )
+
+
 def require_env() -> None:
-    """Raise if OPENAI_API_KEY is missing (UI-friendly; CLI exits)."""
-    missing = [k for k in REQUIRED_KEYS if not os.getenv(k)]
-    if missing:
+    """Raise if no LLM API key is configured."""
+    if not _api_key():
         raise RuntimeError(
-            "Missing environment variables: "
-            + ", ".join(missing)
-            + ". Copy .env.example to .env and set OPENAI_API_KEY."
+            "Missing API key. Set GEMINI_API_KEY or OPENAI_API_KEY in .env "
+            "(copy from .env.example)."
         )
 
 
@@ -62,8 +77,23 @@ def banner(title: str) -> None:
     print(f"\n{line}\n  {title}\n{line}\n")
 
 
-def _llm() -> str:
-    return os.getenv("OPENAI_MODEL", "gpt-4o")
+def _llm():
+    """CrewAI LLM: Gemini when the key is from Google AI Studio, otherwise OpenAI."""
+    from crewai import LLM
+
+    key = _api_key()
+    if _uses_gemini(key):
+        os.environ["GEMINI_API_KEY"] = key
+        os.environ.pop("GOOGLE_API_KEY", None)
+        model = os.getenv("GEMINI_MODEL") or os.getenv("OPENAI_MODEL") or "gemini-3.6-flash"
+        if model.startswith("gpt-"):
+            model = "gemini-3.6-flash"
+        if not model.startswith("gemini/"):
+            model = f"gemini/{model}"
+        return LLM(model=model, api_key=key)
+
+    model = os.getenv("OPENAI_MODEL", "gpt-4o")
+    return LLM(model=model, api_key=key)
 
 
 def build_agents(verbose: bool):
@@ -240,7 +270,7 @@ def run_stage(
             text = str(exc)
             if "insufficient_quota" in text or "credit_balance_exhausted" in text:
                 raise RuntimeError(
-                    "OpenAI API has no remaining credits. Add billing or set a billed OPENAI_API_KEY in .env."
+                    "The LLM API has no remaining credits. Add billing or set a billed key in .env."
                 ) from exc
             raise
     logs = buf.getvalue()

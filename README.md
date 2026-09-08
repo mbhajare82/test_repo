@@ -15,7 +15,12 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Set `OPENAI_API_KEY` in `.env` (GPT-4 / GPT-4o). Optional: `OPENAI_MODEL`.
+Set **one** of these in `.env`:
+
+- `GEMINI_API_KEY` — Google AI Studio (keys may start with `AQ.` or `AIza`)
+- `OPENAI_API_KEY` — GPT-4 / GPT-4o
+
+Optional: `GEMINI_MODEL` (default `gemini-3.6-flash`) or `OPENAI_MODEL`.
 
 ## Streamlit UI
 

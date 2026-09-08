@@ -98,7 +98,7 @@ st.caption("Five CrewAI agents: research → write → critique → optimize →
 with st.sidebar:
     st.header("Run settings")
     verbose = st.toggle("Verbose agent logs", value=True)
-    st.markdown("Needs `OPENAI_API_KEY` in `.env`. Model defaults to `gpt-4o`.")
+    st.markdown("Needs `GEMINI_API_KEY` or `OPENAI_API_KEY` in `.env`.")
 
 topic = st.text_input("Topic to search", placeholder="e.g. AI agents in enterprise software")
 audience = st.text_input("Audience for the topic", placeholder="e.g. VP Engineering, CTOs, product leaders")
